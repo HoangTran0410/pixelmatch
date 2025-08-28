@@ -280,13 +280,12 @@ class ImageDisplayManager {
 
     displayImage(file, displayId) {
         const display = document.getElementById(displayId);
+        const imageType = display.dataset.imageType;
+        const fileId = imageType === 'image1' ? '1' : '2';
 
         if (file) {
             const reader = new FileReader();
             reader.onload = function (e) {
-                const imageType = display.dataset.imageType;
-                const fileId = imageType === 'image1' ? '1' : '2';
-
                 display.innerHTML = `
                     <div class="image-container" onclick="document.getElementById('file${fileId}').click()">
                         <img src="${e.target.result}" alt="Selected image" />
@@ -297,13 +296,14 @@ class ImageDisplayManager {
                         </div>
                     </div>
                 `;
-            };
+
+                // Re-add the file input after setting innerHTML
+                this.addFileInput(display, fileId, imageType);
+            }.bind(this);
             reader.readAsDataURL(file);
         } else {
-            const imageType = display.dataset.imageType;
             const placeholderText =
                 imageType === 'image1' ? 'Drop First Image Here' : 'Drop Second Image Here';
-            const fileId = imageType === 'image1' ? '1' : '2';
 
             display.innerHTML = `
                 <div class="no-image" onclick="document.getElementById('file${fileId}').click()">
@@ -313,7 +313,30 @@ class ImageDisplayManager {
                     </div>
                 </div>
             `;
+
+            // Re-add the file input after setting innerHTML
+            this.addFileInput(display, fileId, imageType);
         }
+    }
+
+    addFileInput(display, fileId, imageType) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = `file${fileId}`;
+        fileInput.accept = 'image/*';
+        fileInput.className = 'file-input';
+        fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                if (imageType === 'image1') {
+                    window.ImageCompareApp.setImage1(file);
+                } else if (imageType === 'image2') {
+                    window.ImageCompareApp.setImage2(file);
+                }
+            }
+        });
+        display.appendChild(fileInput);
     }
 
     renderDiffImage(diffData, width, height) {
