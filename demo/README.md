@@ -147,4 +147,4 @@ The modular structure makes it easy to:
 
 ## License
 
-This tool is part of the facebook-all-in-one-dev project.
+Initial Author: [HoangTran0410](https://github.com/HoangTran0410)
